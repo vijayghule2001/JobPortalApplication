@@ -1,0 +1,64 @@
+<main class="application-page">
+  <div class="container">
+    <header class="page-header">
+      <!-- <p class="eyebrow">Angular Developer Assignment</p> -->
+      <h1>Job Application Portal</h1>
+      <p>Complete each section and review your application before submitting.</p>
+    </header>
+
+    <ng-container *ngIf="state$ | async as state">
+      <app-stepper
+        [steps]="steps"
+        [currentStep]="state.currentStep"
+        [highestStepReached]="state.highestStepReached"
+        [completedSteps]="state.completedSteps"
+        (stepSelected)="goToStep($event)"
+      ></app-stepper>
+
+      <section class="wizard-panel">
+        <div class="panel-heading">
+          <span>Step {{ state.currentStep }} of {{ steps.length }}</span>
+          <h2>{{ steps[state.currentStep - 1] }}</h2>
+        </div>
+
+        <div [ngSwitch]="state.currentStep">
+          <app-personal-information
+            *ngSwitchCase="1"
+            (nextStep)="nextStep(state.currentStep)"
+          ></app-personal-information>
+
+          <app-education
+            *ngSwitchCase="2"
+            (previousStep)="previousStep(state.currentStep)"
+            (nextStep)="nextStep(state.currentStep)"
+          ></app-education>
+
+          <app-work-experience
+            *ngSwitchCase="3"
+            (previousStep)="previousStep(state.currentStep)"
+            (nextStep)="nextStep(state.currentStep)"
+          ></app-work-experience>
+
+          <app-skills
+            *ngSwitchCase="4"
+            (previousStep)="previousStep(state.currentStep)"
+            (nextStep)="nextStep(state.currentStep)"
+          ></app-skills>
+
+          <app-additional-information
+            *ngSwitchCase="5"
+            (previousStep)="previousStep(state.currentStep)"
+            (nextStep)="nextStep(state.currentStep)"
+          ></app-additional-information>
+
+          <app-review-submit
+            *ngSwitchCase="6"
+            (previousStep)="previousStep(state.currentStep)"
+            (editStep)="goToStep($event)"
+          ></app-review-submit>
+        </div>
+      </section>
+    </ng-container>
+  </div>
+</main>
+

@@ -1,0 +1,22 @@
+<div class="file-upload">
+  <input
+    #fileInput
+    type="file"
+    class="form-control"
+    accept=".pdf,.doc,.docx"
+    (change)="onFileSelected($event)"
+  />
+  <small class="form-text text-muted">{{ helperText }}</small>
+
+  <div *ngIf="errorMessage" class="invalid-feedback d-block">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="resume" class="selected-file">
+    <span>{{ resume.name }}</span>
+    <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeResume(fileInput)">
+      Remove
+    </button>
+  </div>
+</div>
+

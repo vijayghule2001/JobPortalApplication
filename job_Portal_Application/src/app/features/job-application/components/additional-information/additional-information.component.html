@@ -1,0 +1,19 @@
+<form [formGroup]="form" class="step-form" (ngSubmit)="goNext()">
+  <app-form-field label="Cover Letter" [control]="form.controls.coverLetter">
+    <textarea class="form-control" rows="7" formControlName="coverLetter"></textarea>
+  </app-form-field>
+
+  <div class="form-group">
+    <label class="form-label">Resume Upload</label>
+    <app-file-upload [resume]="resume" (resumeChange)="onResumeChange($event)"></app-file-upload>
+    <div *ngIf="resumeTouched && !resume" class="invalid-feedback d-block">
+      Resume is required.
+    </div>
+  </div>
+
+  <div class="wizard-actions">
+    <button type="button" class="btn btn-outline-secondary" (click)="goPrevious()">Previous</button>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid || !resume">Next</button>
+  </div>
+</form>
+

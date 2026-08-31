@@ -1,0 +1,29 @@
+<form [formGroup]="form" class="step-form" (ngSubmit)="goNext()">
+  <div class="row">
+    <div class="col-12 col-md-6">
+      <app-form-field label="Full Name" [control]="form.controls.fullName">
+        <input type="text" class="form-control" formControlName="fullName" />
+      </app-form-field>
+    </div>
+    <div class="col-12 col-md-6">
+      <app-form-field label="Email Address" [control]="form.controls.email">
+        <input type="email" class="form-control" formControlName="email" />
+      </app-form-field>
+    </div>
+    <div class="col-12 col-md-6">
+      <app-form-field label="Phone Number" [control]="form.controls.phone">
+        <input type="tel" class="form-control" formControlName="phone" maxlength="10" />
+      </app-form-field>
+    </div>
+    <div class="col-12">
+      <app-form-field label="Address" [control]="form.controls.address">
+        <textarea class="form-control" rows="3" formControlName="address"></textarea>
+      </app-form-field>
+    </div>
+  </div>
+
+  <div class="wizard-actions">
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Next</button>
+  </div>
+</form>
+

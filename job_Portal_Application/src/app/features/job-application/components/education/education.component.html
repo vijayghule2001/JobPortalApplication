@@ -1,0 +1,52 @@
+<form [formGroup]="form" class="step-form" (ngSubmit)="goNext()">
+  <div class="table-responsive education-table d-none d-md-block">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Qualification</th>
+          <th>School/Institute</th>
+          <th>Board/University</th>
+          <th>CGPA or Percentage</th>
+          <th>Passing Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let key of qualificationKeys" [formGroupName]="key">
+          <th>{{ getLabel(key) }}</th>
+          <td><input class="form-control" formControlName="instituteName" /></td>
+          <td><input class="form-control" formControlName="boardUniversity" /></td>
+          <td><input class="form-control" formControlName="score" /></td>
+          <td><input class="form-control" formControlName="passingYear" maxlength="4" /></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-md-none">
+    <div *ngFor="let key of qualificationKeys" class="mobile-card" [formGroupName]="key">
+      <h3>{{ getLabel(key) }}</h3>
+      <app-form-field label="School/Institute Name" [control]="form.controls[key].controls.instituteName">
+        <input class="form-control" formControlName="instituteName" />
+      </app-form-field>
+      <app-form-field label="Board/University" [control]="form.controls[key].controls.boardUniversity">
+        <input class="form-control" formControlName="boardUniversity" />
+      </app-form-field>
+      <app-form-field label="CGPA or Percentage" [control]="form.controls[key].controls.score">
+        <input class="form-control" formControlName="score" />
+      </app-form-field>
+      <app-form-field label="Passing Year" [control]="form.controls[key].controls.passingYear">
+        <input class="form-control" formControlName="passingYear" maxlength="4" />
+      </app-form-field>
+    </div>
+  </div>
+
+  <div *ngIf="form.invalid && form.touched" class="alert alert-danger">
+    Please complete valid SSC and HSC details before continuing.
+  </div>
+
+  <div class="wizard-actions">
+    <button type="button" class="btn btn-outline-secondary" (click)="goPrevious()">Previous</button>
+    <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Next</button>
+  </div>
+</form>
+

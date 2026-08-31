@@ -1,0 +1,96 @@
+<div *ngIf="state$ | async as state" class="review">
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <h3>Personal Information</h3>
+      <button type="button" class="btn btn-link" (click)="editStep.emit(1)">Edit</button>
+    </div>
+    <dl *ngIf="state.personalInformation">
+      <dt>Full Name</dt>
+      <dd>{{ state.personalInformation.fullName }}</dd>
+      <dt>Email</dt>
+      <dd>{{ state.personalInformation.email }}</dd>
+      <dt>Phone</dt>
+      <dd>{{ state.personalInformation.phone }}</dd>
+      <dt>Address</dt>
+      <dd>{{ state.personalInformation.address }}</dd>
+    </dl>
+  </section>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <h3>Education</h3>
+      <button type="button" class="btn btn-link" (click)="editStep.emit(2)">Edit</button>
+    </div>
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Qualification</th>
+            <th>Institute</th>
+            <th>Board/University</th>
+            <th>CGPA/Percentage</th>
+            <th>Passing Year</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of educationRows(state)">
+            <th>{{ row.label }}</th>
+            <td>{{ row.record.instituteName || '-' }}</td>
+            <td>{{ row.record.boardUniversity || '-' }}</td>
+            <td>{{ row.record.score || '-' }}</td>
+            <td>{{ row.record.passingYear || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <h3>Work Experience</h3>
+      <button type="button" class="btn btn-link" (click)="editStep.emit(3)">Edit</button>
+    </div>
+    <div class="list-row" *ngFor="let work of state.workExperience">
+      <div>
+        <strong>{{ work.companyName }}</strong>
+        <span>{{ work.jobTitle }} - {{ work.duration }}</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <h3>Skills and Qualifications</h3>
+      <button type="button" class="btn btn-link" (click)="editStep.emit(4)">Edit</button>
+    </div>
+    <p><strong>Technical Skills:</strong> {{ state.technicalSkills.join(', ') }}</p>
+    <div *ngIf="state.certifications.length > 0">
+      <p><strong>Certifications:</strong></p>
+      <div class="list-row" *ngFor="let certification of state.certifications">
+        <div>
+          <strong>{{ certification.name }}</strong>
+          <span>{{ certification.issuer }} {{ certification.year }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <h3>Additional Information</h3>
+      <button type="button" class="btn btn-link" (click)="editStep.emit(5)">Edit</button>
+    </div>
+    <p class="cover-letter">{{ state.coverLetter }}</p>
+    <p><strong>Resume:</strong> {{ state.resume?.name || '-' }}</p>
+  </section>
+
+  <div class="wizard-actions">
+    <button type="button" class="btn btn-outline-secondary" (click)="previousStep.emit()">Previous</button>
+    <button type="button" class="btn btn-success" [disabled]="state.submitted" (click)="submit(state)">
+      Submit Application
+    </button>
+  </div>
+</div>
+
