@@ -1,23 +1,54 @@
 <form [formGroup]="form" class="step-form" (ngSubmit)="goNext()">
   <div formArrayName="experiences">
     <div *ngFor="let experience of experiences.controls; let index = index" class="repeat-row" [formGroupName]="index">
-      <div class="row align-items-end">
-        <div class="col-12 col-md-4">
+      <div class="experience-grid" [class.present-mode]="experience.get('currentlyWorking')?.value">
+        <div class="experience-field">
           <app-form-field label="Company Name" [control]="experience.get('companyName')">
             <input class="form-control" formControlName="companyName" />
           </app-form-field>
         </div>
-        <div class="col-12 col-md-4">
+
+        <div class="experience-field">
           <app-form-field label="Job Title" [control]="experience.get('jobTitle')">
             <input class="form-control" formControlName="jobTitle" />
           </app-form-field>
         </div>
-        <div class="col-12 col-md-3">
-          <app-form-field label="Duration" [control]="experience.get('duration')">
-            <input class="form-control" formControlName="duration" placeholder="Jan 2022 - Present" />
+
+        <div class="experience-field date-field">
+          <app-form-field label="Start Date" [control]="experience.get('startDate')">
+            <input class="form-control" type="date" formControlName="startDate" />
           </app-form-field>
         </div>
-        <div class="col-12 col-md-1">
+
+        <div class="experience-field date-field" *ngIf="!experience.get('currentlyWorking')?.value">
+          <app-form-field label="End Date" [control]="experience.get('endDate')">
+            <input class="form-control" type="date" formControlName="endDate" />
+            <div
+              *ngIf="
+                experience.hasError('dateRange') &&
+                (experience.get('endDate')?.touched || experience.get('endDate')?.dirty)
+              "
+              class="invalid-feedback d-block"
+            >
+              End Date cannot be before Start Date.
+            </div>
+          </app-form-field>
+        </div>
+
+        <div class="experience-field present-field">
+          <div class="form-check current-check">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              formControlName="currentlyWorking"
+              [id]="'currentlyWorking' + index"
+              (change)="onCurrentlyWorkingChange(index)"
+            />
+            <label class="form-check-label" [for]="'currentlyWorking' + index">Present</label>
+          </div>
+        </div>
+
+        <div class="experience-field remove-field">
           <button
             type="button"
             class="btn btn-outline-danger row-action"
@@ -38,4 +69,3 @@
     <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Next</button>
   </div>
 </form>
-

@@ -14,6 +14,14 @@ export class StepperComponent {
   @Input() completedSteps: boolean[] = [];
   @Output() stepSelected = new EventEmitter<number>();
 
+  get progressPercentage(): number {
+    if (this.steps.length === 0) {
+      return 0;
+    }
+
+    return Math.round((this.currentStep / this.steps.length) * 100);
+  }
+
   canOpen(step: number): boolean {
     return step <= this.highestStepReached;
   }
@@ -24,4 +32,3 @@ export class StepperComponent {
     }
   }
 }
-

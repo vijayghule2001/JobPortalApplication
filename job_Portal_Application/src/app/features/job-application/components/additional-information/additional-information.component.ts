@@ -1,11 +1,15 @@
-import { Component, DestroyRef, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { NgIf } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FileUploadComponent } from '../../../../shared/components/file-upload/file-upload.component';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field.component';
 import { ResumeFile } from '../../models/application.models';
 import { ApplicationStateService } from '../../services/application-state.service';
+
+type AdditionalInformationForm = FormGroup<{
+  coverLetter: FormControl<string>;
+}>;
 
 @Component({
   selector: 'app-additional-information',
@@ -17,16 +21,19 @@ export class AdditionalInformationComponent implements OnInit {
   @Output() previousStep = new EventEmitter<void>();
   @Output() nextStep = new EventEmitter<void>();
 
-  private readonly fb = inject(FormBuilder);
-  private readonly stateService = inject(ApplicationStateService);
-  private readonly destroyRef = inject(DestroyRef);
-
   resume: ResumeFile | null = null;
   resumeTouched = false;
+  readonly form: AdditionalInformationForm;
 
-  readonly form = this.fb.nonNullable.group({
-    coverLetter: ['', [Validators.required, Validators.minLength(50)]]
-  });
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly stateService: ApplicationStateService,
+    private readonly destroyRef: DestroyRef
+  ) {
+    this.form = this.fb.nonNullable.group({
+      coverLetter: ['', [Validators.required, Validators.minLength(50)]]
+    });
+  }
 
   ngOnInit(): void {
     const state = this.stateService.snapshot;
@@ -34,6 +41,8 @@ export class AdditionalInformationComponent implements OnInit {
     this.resume = state.resume;
 
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.stateService.markDraftStarted();
+
       if (this.form.valid && this.resume) {
         this.save();
       }
@@ -71,4 +80,3 @@ export class AdditionalInformationComponent implements OnInit {
     });
   }
 }
-

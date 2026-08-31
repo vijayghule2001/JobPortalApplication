@@ -1,16 +1,29 @@
-<ol class="wizard-stepper" aria-label="Application steps">
-  <li
-    *ngFor="let step of steps; let index = index"
-    [ngClass]="{
-      active: currentStep === index + 1,
-      complete: completedSteps[index],
-      locked: !canOpen(index + 1)
-    }"
-  >
-    <button type="button" (click)="selectStep(index + 1)" [disabled]="!canOpen(index + 1)">
-      <span class="step-number">{{ index + 1 }}</span>
-      <span class="step-label">{{ step }}</span>
-    </button>
-  </li>
-</ol>
+<div class="stepper-shell">
+  <div class="stepper-mobile-summary">
+    <div>
+      <span>Step {{ currentStep }} of {{ steps.length }}</span>
+      <strong>{{ steps[currentStep - 1] }}</strong>
+    </div>
+    <span class="progress-text">{{ progressPercentage }}%</span>
+  </div>
 
+  <div class="stepper-progress" aria-hidden="true">
+    <span [style.width.%]="progressPercentage"></span>
+  </div>
+
+  <ol class="wizard-stepper" aria-label="Application steps">
+    <li
+      *ngFor="let step of steps; let index = index"
+      [ngClass]="{
+        active: currentStep === index + 1,
+        complete: completedSteps[index],
+        locked: !canOpen(index + 1)
+      }"
+    >
+      <button type="button" (click)="selectStep(index + 1)" [disabled]="!canOpen(index + 1)">
+        <span class="step-number">{{ index + 1 }}</span>
+        <span class="step-label">{{ step }}</span>
+      </button>
+    </li>
+  </ol>
+</div>

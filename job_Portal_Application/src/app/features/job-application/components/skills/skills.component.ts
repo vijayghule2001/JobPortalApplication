@@ -1,37 +1,102 @@
-import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Certification } from '../../models/application.models';
 import { ApplicationStateService } from '../../services/application-state.service';
+
+type SkillsForm = FormGroup<{
+  skillInput: FormControl<string>;
+  certification: FormGroup<{
+    name: FormControl<string>;
+    issuer: FormControl<string>;
+    year: FormControl<string>;
+  }>;
+}>;
 
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [NgFor, NgIf, FormsModule],
+  imports: [NgFor, NgIf, ReactiveFormsModule],
   templateUrl: './skills.component.html'
 })
 export class SkillsComponent implements OnInit {
   @Output() previousStep = new EventEmitter<void>();
   @Output() nextStep = new EventEmitter<void>();
 
-  private readonly stateService = inject(ApplicationStateService);
+  readonly skillSuggestions = [
+    'Angular',
+    'Angular Material',
+    'Bootstrap',
+    'CSS',
+    'Docker',
+    'Express.js',
+    'Git',
+    'HTML',
+    'Java',
+    'JavaScript',
+    'MongoDB',
+    'Node.js',
+    'PostgreSQL',
+    'Pycharm',
+    'Python',
+    'Python Programming',
+    'React',
+    'REST API',
+    'RxJS',
+    'SQL',
+    'TypeScript',
+    'Unit Testing'
+  ];
 
   technicalSkills: string[] = [];
   certifications: Certification[] = [];
-  skillInput = '';
-  certificationForm: Certification = { name: '', issuer: '', year: '' };
   editingCertificationIndex: number | null = null;
   errorMessage = '';
+  readonly form: SkillsForm;
+
+  constructor(
+    private  fb: FormBuilder,
+    private  stateService: ApplicationStateService,
+    private  destroyRef: DestroyRef
+  ) {
+    this.form = this.fb.nonNullable.group({
+      skillInput: [''],
+      certification: this.fb.nonNullable.group({
+        name: [''],
+        issuer: [''],
+        year: ['']
+      })
+    });
+  }
+
+  get filteredSkillSuggestions(): string[] {
+    const searchText = this.form.controls.skillInput.value.trim().toLowerCase();
+
+    if (!searchText) {
+      return [];
+    }
+
+    return this.skillSuggestions
+      .filter((skill) => skill.toLowerCase().startsWith(searchText))
+      .filter((skill) => !this.hasSkill(skill))
+      .slice(0, 6);
+  }
 
   ngOnInit(): void {
     const state = this.stateService.snapshot;
     this.technicalSkills = [...state.technicalSkills];
     this.certifications = [...state.certifications];
+
+    this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.stateService.markDraftStarted();
+    });
   }
 
   addSkill(): void {
-    const skill = this.skillInput.trim();
-    const duplicate = this.technicalSkills.some((item) => item.toLowerCase() === skill.toLowerCase());
+    this.stateService.markDraftStarted();
+
+    const skill = this.form.controls.skillInput.value.trim();
     this.errorMessage = '';
 
     if (!skill) {
@@ -39,14 +104,19 @@ export class SkillsComponent implements OnInit {
       return;
     }
 
-    if (duplicate) {
+    if (this.hasSkill(skill)) {
       this.errorMessage = 'This technical skill is already added.';
       return;
     }
 
     this.technicalSkills.push(skill);
-    this.skillInput = '';
+    this.form.controls.skillInput.setValue('');
     this.save();
+  }
+
+  addSuggestedSkill(skill: string): void {
+    this.form.controls.skillInput.setValue(skill);
+    this.addSkill();
   }
 
   removeSkill(index: number): void {
@@ -55,10 +125,13 @@ export class SkillsComponent implements OnInit {
   }
 
   saveCertification(): void {
-    const certification = {
-      name: this.certificationForm.name.trim(),
-      issuer: this.certificationForm.issuer.trim(),
-      year: this.certificationForm.year.trim()
+    this.stateService.markDraftStarted();
+
+    const certificationValue = this.form.controls.certification.getRawValue();
+    const certification: Certification = {
+      name: certificationValue.name.trim(),
+      issuer: certificationValue.issuer.trim(),
+      year: certificationValue.year.trim()
     };
 
     if (!certification.name) {
@@ -77,7 +150,7 @@ export class SkillsComponent implements OnInit {
 
   editCertification(index: number): void {
     this.editingCertificationIndex = index;
-    this.certificationForm = { ...this.certifications[index] };
+    this.form.controls.certification.patchValue(this.certifications[index]);
   }
 
   removeCertification(index: number): void {
@@ -87,7 +160,7 @@ export class SkillsComponent implements OnInit {
 
   cancelEdit(): void {
     this.editingCertificationIndex = null;
-    this.certificationForm = { name: '', issuer: '', year: '' };
+    this.form.controls.certification.reset();
   }
 
   goPrevious(): void {
@@ -107,5 +180,7 @@ export class SkillsComponent implements OnInit {
   private save(): void {
     this.stateService.setSkills(this.technicalSkills, this.certifications);
   }
+  private hasSkill(skill: string): boolean {
+    return this.technicalSkills.some((item) => item.toLowerCase() === skill.toLowerCase());
+  }
 }
-

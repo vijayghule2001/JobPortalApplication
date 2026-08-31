@@ -1,5 +1,5 @@
 import { AsyncPipe, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { Observable } from 'rxjs';
 import { WIZARD_STEPS } from '../../../../constants/application.constants';
 import { StepperComponent } from '../../../../shared/components/stepper/stepper.component';
@@ -31,10 +31,12 @@ import { WorkExperienceComponent } from '../work-experience/work-experience.comp
   templateUrl: './job-application-wizard.component.html'
 })
 export class JobApplicationWizardComponent {
-  private readonly stateService = inject(ApplicationStateService);
-
-  readonly state$: Observable<ApplicationState> = this.stateService.state$;
+  readonly state$: Observable<ApplicationState>;
   readonly steps = WIZARD_STEPS;
+
+  constructor(private readonly stateService: ApplicationStateService) {
+    this.state$ = this.stateService.state$;
+  }
 
   goToStep(step: number): void {
     this.stateService.setCurrentStep(step);
@@ -47,5 +49,12 @@ export class JobApplicationWizardComponent {
   previousStep(currentStep: number): void {
     this.stateService.setCurrentStep(currentStep - 1);
   }
-}
 
+  @HostListener('window:beforeunload', ['$event'])
+  confirmBeforeRefresh(event: BeforeUnloadEvent): void {
+    if (this.stateService.hasUnsavedDraft()) {
+      event.preventDefault();
+      event.returnValue = '';
+    }
+  }
+}

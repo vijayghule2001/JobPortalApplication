@@ -13,10 +13,34 @@
       <tbody>
         <tr *ngFor="let key of qualificationKeys" [formGroupName]="key">
           <th>{{ getLabel(key) }}</th>
-          <td><input class="form-control" formControlName="instituteName" /></td>
-          <td><input class="form-control" formControlName="boardUniversity" /></td>
-          <td><input class="form-control" formControlName="score" /></td>
-          <td><input class="form-control" formControlName="passingYear" maxlength="4" /></td>
+          <td>
+            <input class="form-control" formControlName="instituteName" />
+            <app-validation-message
+              [control]="form.controls[key].controls.instituteName"
+              [label]="getLabel(key) + ' School/Institute Name'"
+            ></app-validation-message>
+          </td>
+          <td>
+            <input class="form-control" formControlName="boardUniversity" />
+            <app-validation-message
+              [control]="form.controls[key].controls.boardUniversity"
+              [label]="getLabel(key) + ' Board/University'"
+            ></app-validation-message>
+          </td>
+          <td>
+            <input class="form-control" formControlName="score" />
+            <app-validation-message
+              [control]="form.controls[key].controls.score"
+              [label]="getLabel(key) + ' CGPA or Percentage'"
+            ></app-validation-message>
+          </td>
+          <td>
+            <input class="form-control" formControlName="passingYear" maxlength="4" />
+            <app-validation-message
+              [control]="form.controls[key].controls.passingYear"
+              [label]="getLabel(key) + ' Passing Year'"
+            ></app-validation-message>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -40,13 +64,8 @@
     </div>
   </div>
 
-  <div *ngIf="form.invalid && form.touched" class="alert alert-danger">
-    Please complete valid SSC and HSC details before continuing.
-  </div>
-
   <div class="wizard-actions">
     <button type="button" class="btn btn-outline-secondary" (click)="goPrevious()">Previous</button>
     <button type="submit" class="btn btn-primary" [disabled]="form.invalid">Next</button>
   </div>
 </form>
-

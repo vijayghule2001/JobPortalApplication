@@ -1,5 +1,6 @@
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ApplicationState, EducationRecord } from '../../models/application.models';
 import { ApplicationStateService } from '../../services/application-state.service';
@@ -14,9 +15,15 @@ export class ReviewSubmitComponent {
   @Output() previousStep = new EventEmitter<void>();
   @Output() editStep = new EventEmitter<number>();
 
-  private readonly stateService = inject(ApplicationStateService);
-  readonly state$: Observable<ApplicationState> = this.stateService.state$;
-  successMessage = '';
+  readonly state$: Observable<ApplicationState>;
+  showSuccessDialog = false;
+
+  constructor(
+    private readonly stateService: ApplicationStateService,
+    private readonly router: Router
+  ) {
+    this.state$ = this.stateService.state$;
+  }
 
   educationRows(state: ApplicationState): { label: string; record: EducationRecord }[] {
     return [
@@ -33,6 +40,12 @@ export class ReviewSubmitComponent {
     }
 
     this.stateService.submitApplication();
-    this.successMessage = 'Application submitted successfully.';
+    this.showSuccessDialog = true;
+  }
+
+  closeSuccessDialog(): void {
+    this.showSuccessDialog = false;
+    this.stateService.resetApplication();
+    this.router.navigate(['/']);
   }
 }

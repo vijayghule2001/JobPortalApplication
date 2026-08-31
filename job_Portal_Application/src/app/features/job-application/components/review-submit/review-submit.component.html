@@ -1,29 +1,55 @@
-<div *ngIf="state$ | async as state" class="review">
-  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+<div *ngIf="state$ | async as state" class="review review-page">
+  <div class="review-summary">
+    <div>
+      <span class="review-kicker">Final Review</span>
+      <h3>Check Your Application Details</h3>
+      <p>Review each section before submitting your application.</p>
+    </div>
+    <div class="review-count">
+      <strong>5</strong>
+      <span>Sections</span>
+    </div>
+  </div>
 
   <section class="review-section">
     <div class="section-heading">
-      <h3>Personal Information</h3>
-      <button type="button" class="btn btn-link" (click)="editStep.emit(1)">Edit</button>
+      <div>
+        <span class="section-number">01</span>
+        <h3>Personal Information</h3>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="editStep.emit(1)">Edit</button>
     </div>
-    <dl *ngIf="state.personalInformation">
-      <dt>Full Name</dt>
-      <dd>{{ state.personalInformation.fullName }}</dd>
-      <dt>Email</dt>
-      <dd>{{ state.personalInformation.email }}</dd>
-      <dt>Phone</dt>
-      <dd>{{ state.personalInformation.phone }}</dd>
-      <dt>Address</dt>
-      <dd>{{ state.personalInformation.address }}</dd>
-    </dl>
+
+    <div *ngIf="state.personalInformation" class="review-info-grid">
+      <div class="review-info-item">
+        <span>Full Name</span>
+        <strong>{{ state.personalInformation.fullName }}</strong>
+      </div>
+      <div class="review-info-item">
+        <span>Email</span>
+        <strong>{{ state.personalInformation.email }}</strong>
+      </div>
+      <div class="review-info-item">
+        <span>Phone</span>
+        <strong>{{ state.personalInformation.phone }}</strong>
+      </div>
+      <div class="review-info-item review-info-wide">
+        <span>Address</span>
+        <strong>{{ state.personalInformation.address }}</strong>
+      </div>
+    </div>
   </section>
 
   <section class="review-section">
     <div class="section-heading">
-      <h3>Education</h3>
-      <button type="button" class="btn btn-link" (click)="editStep.emit(2)">Edit</button>
+      <div>
+        <span class="section-number">02</span>
+        <h3>Education</h3>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="editStep.emit(2)">Edit</button>
     </div>
-    <div class="table-responsive">
+
+    <div class="table-responsive review-table d-none d-md-block">
       <table class="table">
         <thead>
           <tr>
@@ -45,33 +71,19 @@
         </tbody>
       </table>
     </div>
-  </section>
 
-  <section class="review-section">
-    <div class="section-heading">
-      <h3>Work Experience</h3>
-      <button type="button" class="btn btn-link" (click)="editStep.emit(3)">Edit</button>
-    </div>
-    <div class="list-row" *ngFor="let work of state.workExperience">
-      <div>
-        <strong>{{ work.companyName }}</strong>
-        <span>{{ work.jobTitle }} - {{ work.duration }}</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="review-section">
-    <div class="section-heading">
-      <h3>Skills and Qualifications</h3>
-      <button type="button" class="btn btn-link" (click)="editStep.emit(4)">Edit</button>
-    </div>
-    <p><strong>Technical Skills:</strong> {{ state.technicalSkills.join(', ') }}</p>
-    <div *ngIf="state.certifications.length > 0">
-      <p><strong>Certifications:</strong></p>
-      <div class="list-row" *ngFor="let certification of state.certifications">
-        <div>
-          <strong>{{ certification.name }}</strong>
-          <span>{{ certification.issuer }} {{ certification.year }}</span>
+    <div class="review-mobile-list d-md-none">
+      <div class="review-mobile-card" *ngFor="let row of educationRows(state)">
+        <strong>{{ row.label }}</strong>
+        <div class="review-mobile-grid">
+          <span>Institute</span>
+          <p>{{ row.record.instituteName || '-' }}</p>
+          <span>Board/University</span>
+          <p>{{ row.record.boardUniversity || '-' }}</p>
+          <span>CGPA/Percentage</span>
+          <p>{{ row.record.score || '-' }}</p>
+          <span>Passing Year</span>
+          <p>{{ row.record.passingYear || '-' }}</p>
         </div>
       </div>
     </div>
@@ -79,18 +91,87 @@
 
   <section class="review-section">
     <div class="section-heading">
-      <h3>Additional Information</h3>
-      <button type="button" class="btn btn-link" (click)="editStep.emit(5)">Edit</button>
+      <div>
+        <span class="section-number">03</span>
+        <h3>Work Experience</h3>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="editStep.emit(3)">Edit</button>
     </div>
-    <p class="cover-letter">{{ state.coverLetter }}</p>
-    <p><strong>Resume:</strong> {{ state.resume?.name || '-' }}</p>
+
+    <div class="review-list">
+      <div class="review-list-item" *ngFor="let work of state.workExperience">
+        <div>
+          <strong>{{ work.companyName }}</strong>
+          <span>{{ work.jobTitle }}</span>
+        </div>
+        <span class="review-pill">{{ work.startDate }} to {{ work.currentlyWorking ? 'Present' : work.endDate }}</span>
+      </div>
+    </div>
   </section>
 
-  <div class="wizard-actions">
+  <section class="review-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">04</span>
+        <h3>Skills and Qualifications</h3>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="editStep.emit(4)">Edit</button>
+    </div>
+
+    <div class="review-subblock">
+      <span class="review-label">Technical Skills</span>
+      <div class="badge-list compact-badges">
+        <span *ngFor="let skill of state.technicalSkills" class="badge badge-primary">{{ skill }}</span>
+      </div>
+    </div>
+
+    <div class="review-subblock" *ngIf="state.certifications.length > 0">
+      <span class="review-label">Certifications</span>
+      <div class="review-list">
+        <div class="review-list-item" *ngFor="let certification of state.certifications">
+          <div>
+            <strong>{{ certification.name }}</strong>
+            <span>{{ certification.issuer || '-' }}</span>
+          </div>
+          <span class="review-pill">{{ certification.year || '-' }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="review-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-number">05</span>
+        <h3>Additional Information</h3>
+      </div>
+      <button type="button" class="btn btn-outline-primary btn-sm" (click)="editStep.emit(5)">Edit</button>
+    </div>
+
+    <div class="review-subblock">
+      <span class="review-label">Cover Letter</span>
+      <p class="cover-letter">{{ state.coverLetter }}</p>
+    </div>
+
+    <div class="resume-review">
+      <span>Resume</span>
+      <strong>{{ state.resume?.name || '-' }}</strong>
+    </div>
+  </section>
+
+  <div class="review-actions">
     <button type="button" class="btn btn-outline-secondary" (click)="previousStep.emit()">Previous</button>
     <button type="button" class="btn btn-success" [disabled]="state.submitted" (click)="submit(state)">
       Submit Application
     </button>
   </div>
-</div>
 
+  <div *ngIf="showSuccessDialog" class="dialog-backdrop" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <div class="dialog-box">
+      <div class="dialog-icon">✓</div>
+      <h3 id="successTitle">Application Submitted Successfully</h3>
+      <p>Your job application has been submitted.</p>
+      <button type="button" class="btn btn-primary" (click)="closeSuccessDialog()">OK</button>
+    </div>
+  </div>
+</div>

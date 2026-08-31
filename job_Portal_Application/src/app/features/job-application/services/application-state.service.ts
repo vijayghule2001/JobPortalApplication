@@ -34,6 +34,7 @@ const initialState: ApplicationState = {
   coverLetter: '',
   resume: null,
   completedSteps: [false, false, false, false, false, false],
+  draftStarted: false,
   submitted: false
 };
 
@@ -56,6 +57,16 @@ export class ApplicationStateService {
     });
   }
 
+  markDraftStarted(): void {
+    if (!this.snapshot.draftStarted) {
+      this.updateState({ draftStarted: true });
+    }
+  }
+
+  hasUnsavedDraft(): boolean {
+    return this.snapshot.draftStarted && !this.snapshot.submitted;
+  }
+
   markStepComplete(step: number, complete = true): void {
     const completedSteps = [...this.snapshot.completedSteps];
     completedSteps[step - 1] = complete;
@@ -63,22 +74,22 @@ export class ApplicationStateService {
   }
 
   updatePersonalInformation(personalInformation: PersonalInformation): void {
-    this.updateState({ personalInformation, submitted: false });
+    this.updateState({ personalInformation, draftStarted: true, submitted: false });
     this.markStepComplete(1);
   }
 
   updateEducation(education: EducationRecords): void {
-    this.updateState({ education, submitted: false });
+    this.updateState({ education, draftStarted: true, submitted: false });
     this.markStepComplete(2);
   }
 
   setWorkExperience(workExperience: WorkExperience[]): void {
-    this.updateState({ workExperience, submitted: false });
+    this.updateState({ workExperience, draftStarted: true, submitted: false });
     this.markStepComplete(3);
   }
 
   setSkills(technicalSkills: string[], certifications: Certification[]): void {
-    this.updateState({ technicalSkills, certifications, submitted: false });
+    this.updateState({ technicalSkills, certifications, draftStarted: true, submitted: false });
     this.markStepComplete(4);
   }
 
@@ -86,18 +97,32 @@ export class ApplicationStateService {
     this.updateState({
       coverLetter: additionalInformation.coverLetter,
       resume: additionalInformation.resume,
+      draftStarted: true,
       submitted: false
     });
     this.markStepComplete(5);
   }
 
   setResume(resume: ResumeFile | null): void {
-    this.updateState({ resume, submitted: false });
+    this.updateState({ resume, draftStarted: true, submitted: false });
   }
 
   submitApplication(): void {
     this.updateState({ submitted: true });
     console.log('Submitted Job Application:', this.snapshot);
+  }
+
+  resetApplication(): void {
+    this.stateSubject.next({
+      ...initialState,
+      education: {
+        ssc: { ...emptyEducationRecord },
+        hsc: { ...emptyEducationRecord },
+        graduation: { ...emptyEducationRecord },
+        postGraduation: { ...emptyEducationRecord }
+      },
+      completedSteps: [...initialState.completedSteps]
+    });
   }
 
   private updateState(changes: Partial<ApplicationState>): void {
@@ -107,4 +132,3 @@ export class ApplicationStateService {
     });
   }
 }
-

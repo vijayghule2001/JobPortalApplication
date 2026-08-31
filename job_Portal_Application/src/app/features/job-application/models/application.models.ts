@@ -22,7 +22,9 @@ export interface EducationRecords {
 export interface WorkExperience {
   companyName: string;
   jobTitle: string;
-  duration: string;
+  startDate: string;
+  endDate: string;
+  currentlyWorking: boolean;
 }
 
 export interface Certification {
@@ -53,6 +55,6 @@ export interface ApplicationState {
   coverLetter: string;
   resume: ResumeFile | null;
   completedSteps: boolean[];
+  draftStarted: boolean;
   submitted: boolean;
 }
-

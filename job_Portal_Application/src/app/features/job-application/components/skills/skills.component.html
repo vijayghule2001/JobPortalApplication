@@ -1,12 +1,29 @@
-<div class="step-form">
-  <div class="form-group">
+<div class="step-form skills-form" [formGroup]="form">
+  <section class="skills-section">
     <label class="form-label">Technical Skills</label>
-    <div class="input-group">
-      <input class="form-control" [(ngModel)]="skillInput" (keyup.enter)="addSkill()" />
+    <div class="skill-input-row">
+      <input
+        class="form-control"
+        formControlName="skillInput"
+        (keyup.enter)="addSkill()"
+        placeholder="Type a skill, for example Py"
+      />
       <button type="button" class="btn btn-primary" (click)="addSkill()">Add</button>
     </div>
+
+    <div class="suggestion-list" *ngIf="filteredSkillSuggestions.length > 0">
+      <button
+        *ngFor="let suggestion of filteredSkillSuggestions"
+        type="button"
+        class="suggestion-chip"
+        (click)="addSuggestedSkill(suggestion)"
+      >
+        {{ suggestion }}
+      </button>
+    </div>
+
     <div *ngIf="errorMessage" class="invalid-feedback d-block">{{ errorMessage }}</div>
-  </div>
+  </section>
 
   <div class="badge-list" *ngIf="technicalSkills.length > 0">
     <span *ngFor="let skill of technicalSkills; let index = index" class="badge badge-primary">
@@ -17,46 +34,62 @@
 
   <hr />
 
-  <h3>Certifications</h3>
-  <div class="row">
-    <div class="col-12 col-md-4">
-      <label class="form-label">Certification Name</label>
-      <input class="form-control" [(ngModel)]="certificationForm.name" />
-    </div>
-    <div class="col-12 col-md-4">
-      <label class="form-label">Issuer</label>
-      <input class="form-control" [(ngModel)]="certificationForm.issuer" />
-    </div>
-    <div class="col-12 col-md-2">
-      <label class="form-label">Year</label>
-      <input class="form-control" [(ngModel)]="certificationForm.year" maxlength="4" />
-    </div>
-    <div class="col-12 col-md-2 cert-actions">
-      <button type="button" class="btn btn-outline-primary" (click)="saveCertification()">
-        {{ editingCertificationIndex === null ? 'Add' : 'Update' }}
-      </button>
-      <button *ngIf="editingCertificationIndex !== null" type="button" class="btn btn-link" (click)="cancelEdit()">
-        Cancel
-      </button>
-    </div>
-  </div>
+  <section class="skills-section">
+    <h3>Certifications</h3>
+    <div class="cert-form-grid" formGroupName="certification">
+      <div class="cert-field">
+        <label class="form-label">Certification Name</label>
+        <input class="form-control" formControlName="name" />
+      </div>
 
-  <div class="list-table" *ngIf="certifications.length > 0">
-    <div *ngFor="let certification of certifications; let index = index" class="list-row">
-      <div>
-        <strong>{{ certification.name }}</strong>
-        <span>{{ certification.issuer }} {{ certification.year }}</span>
+      <div class="cert-field">
+        <label class="form-label">Issuer</label>
+        <input class="form-control" formControlName="issuer" />
       </div>
-      <div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="editCertification(index)">Edit</button>
-        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCertification(index)">Remove</button>
+
+      <div class="cert-field cert-year-field">
+        <label class="form-label">Year</label>
+        <input class="form-control" formControlName="year" maxlength="4" />
+      </div>
+
+      <div class="cert-actions">
+        <button type="button" class="btn btn-outline-primary" (click)="saveCertification()">
+          {{ editingCertificationIndex === null ? 'Add' : 'Update' }}
+        </button>
+        <button
+          *ngIf="editingCertificationIndex !== null"
+          type="button"
+          class="btn btn-outline-secondary"
+          (click)="cancelEdit()"
+        >
+          Cancel
+        </button>
       </div>
     </div>
-  </div>
+
+    <div class="list-table" *ngIf="certifications.length > 0">
+      <div *ngFor="let certification of certifications; let index = index" class="list-row certification-row">
+        <div>
+          <strong>{{ certification.name }}</strong>
+          <span>{{ certification.issuer }} {{ certification.year }}</span>
+        </div>
+
+        <div class="cert-row-actions">
+          <button type="button" class="btn btn-sm btn-outline-secondary" (click)="editCertification(index)">
+            Edit
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCertification(index)">
+            Remove
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <div class="wizard-actions">
     <button type="button" class="btn btn-outline-secondary" (click)="goPrevious()">Previous</button>
-    <button type="button" class="btn btn-primary" [disabled]="technicalSkills.length === 0" (click)="goNext()">Next</button>
+    <button type="button" class="btn btn-primary" [disabled]="technicalSkills.length === 0" (click)="goNext()">
+      Next
+    </button>
   </div>
 </div>
-

@@ -1,8 +1,15 @@
-import { Component, DestroyRef, EventEmitter, OnInit, Output, inject } from '@angular/core';
+import { Component, DestroyRef, EventEmitter, OnInit, Output } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FormFieldComponent } from '../../../../shared/components/form-field/form-field.component';
 import { ApplicationStateService } from '../../services/application-state.service';
+
+type PersonalInformationForm = FormGroup<{
+  fullName: FormControl<string>;
+  email: FormControl<string>;
+  phone: FormControl<string>;
+  address: FormControl<string>;
+}>;
 
 @Component({
   selector: 'app-personal-information',
@@ -13,16 +20,20 @@ import { ApplicationStateService } from '../../services/application-state.servic
 export class PersonalInformationComponent implements OnInit {
   @Output() nextStep = new EventEmitter<void>();
 
-  private readonly fb = inject(FormBuilder);
-  private readonly stateService = inject(ApplicationStateService);
-  private readonly destroyRef = inject(DestroyRef);
+  readonly form: PersonalInformationForm;
 
-  readonly form = this.fb.nonNullable.group({
-    fullName: ['', [Validators.required, Validators.minLength(3)]],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    address: ['', [Validators.required, Validators.minLength(10)]]
-  });
+  constructor(
+    private readonly fb: FormBuilder,
+    private readonly stateService: ApplicationStateService,
+    private readonly destroyRef: DestroyRef
+  ) {
+    this.form = this.fb.nonNullable.group({
+      fullName: ['', [Validators.required, Validators.minLength(3)]],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+      address: ['', [Validators.required, Validators.minLength(10)]]
+    });
+  }
 
   ngOnInit(): void {
     const saved = this.stateService.snapshot.personalInformation;
@@ -31,6 +42,8 @@ export class PersonalInformationComponent implements OnInit {
     }
 
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.stateService.markDraftStarted();
+
       if (this.form.valid) {
         this.stateService.updatePersonalInformation(this.form.getRawValue());
       }
@@ -46,4 +59,3 @@ export class PersonalInformationComponent implements OnInit {
     }
   }
 }
-
